@@ -1,6 +1,4 @@
 const { memberDetailsModel } = require('../models/member');
-
-
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -8,9 +6,9 @@ require('dotenv').config();
 async function register(req, res){
     let responseData;
     try {
-        const {fullName, email, phoneNumber, password, gender} = req.body;
+        const {full_name, email, phone_number, password, gender} = req.body;
          
-         if (!fullName || !email || !phoneNumber || !password || !gender) {
+         if (!full_name || !email || !phone_number || !password || !gender) {
             responseData = {
                 meta: {
                     code: 400,
@@ -35,10 +33,10 @@ async function register(req, res){
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const userDetails = await memberDetailsModel.create({
-            fullName,
+            full_name,
             gender,
             email,
-            phoneNumber,
+            phone_number,
             password: hashedPassword,
         });
 
@@ -177,22 +175,21 @@ async function verifyMember(req, res) {
 async function editProfileDetails(req, res){
     let responseData;
     try {
-        const { name,phone,email,gender, action} = req.body;
+        const { name,phone,gender, action} = req.body;
         let getDetails;
         if(action === 'update'){
             const updatedDetails = await memberDetailsModel.findByIdAndUpdate(
                 req.member._id, 
                 {
-                  fullName: name,
-                  phoneNumber: phone,
-                  email,
+                  full_name: name,
+                  phone_number: phone,
                   gender
                 },
                 { new: true } 
             );
         }else if(action === 'get_info'){
              getDetails = await memberDetailsModel.findOne({_id: req.member._id},
-                {fullName:1, phoneNumber:1, email:1, gender:1});
+                {full_name:1, phone_number:1, email:1, gender:1});
         }
         
         responseData = {
