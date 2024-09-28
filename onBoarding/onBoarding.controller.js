@@ -1,4 +1,5 @@
 const { memberDetailsModel } = require('../models/member');
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -74,7 +75,7 @@ async function login(req, res){
         if (!email || !password) {
             responseData = {
                 meta: {
-                    code: 400,
+                    code: 200,
                     success: false,
                     message: 'Email and password are required!',
                 },
@@ -85,7 +86,7 @@ async function login(req, res){
         if (!user) {
             responseData = {
                 meta: {
-                    code: 401,
+                    code: 200,
                     success: false,
                     message: 'Invalid email or password!',
                 },
@@ -93,11 +94,11 @@ async function login(req, res){
             return res.status(responseData.meta.code).json(responseData);
         }
 
-        const isPasswordValid = bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             responseData = {
                 meta: {
-                    code: 401,
+                    code: 200,
                     success: false,
                     message: 'Invalid email or password!',
                 },
@@ -190,6 +191,7 @@ async function editProfileDetails(req, res){
         }else if(action === 'get_info'){
              getDetails = await memberDetailsModel.findOne({_id: req.member._id},
                 {full_name:1, phone_number:1, email:1, gender:1});
+                // console.log(getDetails, "getDetails")
         }
         
         responseData = {

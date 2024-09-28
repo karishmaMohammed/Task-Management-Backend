@@ -9,9 +9,10 @@ async function authenticateToken(req, res, next) {
     try {
         if (tokenAuth) {
             const payload = jwt.verify(tokenAuth, config.jwt_secret);
+            
             if (payload.userId) {
                 const member = await memberDetailsModel.findOne({ _id: payload.userId });
-
+               
                 if (member && member._id) {
                     if (member.is_verified || ['/member/verify-member'].includes(req.originalUrl)) {
                         req.member = member;
