@@ -11,15 +11,14 @@ const memberDetailsSchema = new mongoose.Schema({
     is_verified: { type: Boolean },
    
     // is_admin: { type: Boolean, index: true },
-    // onBoardingStatus:{ type: String},
+   
 }, {
     timestamps: true,
 });
 
 
 memberDetailsSchema.index({ email: 1 });
-// memberDetailsSchema.index({ is_verified: 1 });
-// memberDetailsSchema.index({ is_admin: 1 });
+
 
 // create user mode
 const memberDetailsModel = mongoose.model('member_details', memberDetailsSchema);
