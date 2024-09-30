@@ -9,7 +9,7 @@ const memberDetailsSchema = new mongoose.Schema({
     phone_number:{ type: String},
     id_token: { type: String},
     is_verified: { type: Boolean },
-   
+    mode: { type: Boolean} //dark mode lite mode
     // is_admin: { type: Boolean, index: true },
    
 }, {

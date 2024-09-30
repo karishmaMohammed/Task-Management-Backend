@@ -1,4 +1,5 @@
 const { taskSequenceModel } = require('../models/taskSequence');
+const { notificationModel } = require('../models/notification');
 
 const generateSeqId = async (taskTile, memberId) => {
     try {
@@ -22,7 +23,27 @@ const generateSeqId = async (taskTile, memberId) => {
     }
 };
 
+const createNotification = async(seq_id, task_title, mem_id, task_id, notification_title, memberName, notify_type) => {
+    try {
+        const notifications = await notificationModel.create({
+                    ticket_sequence_id: sequence_id,
+                    ticket_id,
+                    notification_title,
+                    ticket_title : ticketTitle,
+                    member_id : mem_id,
+                    organization_id: orgId,
+                    notify_type,
+                    member_photo: memberPhoto,
+                    member_name: memberName,
+                    is_read: 0,
+                });
+    } catch (error) {
+        console.log('something went wrong!', error)
+    }
+}
+
 
 module.exports={
-    generateSeqId
+    generateSeqId,
+    createNotification
 }

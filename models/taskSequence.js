@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const taskSequence = new  mongoose.Schema({
    task_title:{type: String,  required: true},
     task_seq_id: {type: Number, default: 0},

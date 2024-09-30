@@ -13,7 +13,7 @@ const notificationSchema = new mongoose.Schema({
 });
 
 
-notificationSchema.index({ member_id: 1, task_id:1 });
+notificationSchema.index({ member_id: 1}, {task_id:1 });
 
 const notificationModel = mongoose.model('notifications', notificationSchema);
 module.exports = { notificationModel };

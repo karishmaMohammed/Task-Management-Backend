@@ -16,7 +16,7 @@ const taskManagementSchema = new mongoose.Schema({
 });
 
 
-taskManagementSchema.index({ task_title: 1, created_by:1 });
+taskManagementSchema.index({ task_title: 1}, {created_by:1 });
 
 const taskManagementModel = mongoose.model('task_managements', taskManagementSchema);
 module.exports = { taskManagementModel };
