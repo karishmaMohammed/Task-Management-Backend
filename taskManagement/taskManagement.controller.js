@@ -1,13 +1,51 @@
 const { taskManagementModel } = require('../models/taskManagement');
 const { generateSeqId, createNotification } = require('../middlewares/helper');
 const { taskActivityLogModel } = require('../models/taskActivityLog');
+const { taskTemplateFieldModel } = require('../models/taskTemplate');
+const {taskTemplateDefaultFieldsModel } = require('../models/taskTemplateDefault');
 
+// popup details 
+async function getTaskPopUpFields(req, res){
+    let responseData;
+    try {
+        const [customFields, defaultFields] = await Promise.all([
+            taskTemplateFieldModel.find({
+            member_id: req.member._id}), 
+            taskTemplateDefaultFieldsModel.find()
+        ]);
+        const fields = [...(customFields || []), ...(defaultFields || [])];
+        responseData = {
+            meta: {
+                code: 200,
+                success: true,
+                message: "Task fields shown successfully!",
+            },
+            data:{
+                task_fields : fields
+            }
+        };
+
+        return res.status(responseData.meta.code).json(responseData);
+
+    } catch (error) {
+        responseData = {
+            meta: {
+                code: 200,
+                success: false,
+                message: "Something went wrong",
+            },
+        };
+
+        return res.status(responseData.meta.code).json(responseData); 
+    }
+}
+// create task
 async function createTask(req, res){
     let responseData;
     try {
         const { task_title,description,due_date } = req.body;
         const memId = req.member._id;
-        const taskSeqId = generateSeqId(task_title,memId);
+        const taskSeqId = await generateSeqId(task_title,memId);
         // validation => member can't add same task title
         const existTaskTile = await taskManagementModel.findOne({created_by:memId },
              {task_title:1});
@@ -27,6 +65,9 @@ async function createTask(req, res){
             task_sequence_id:taskSeqId,
             due_date,task_status : 'draft', priority:false
         });
+        const notification_title = `Task "${task_title}" has been created`;
+        const notify_type = 'task_created'
+        createNotification(taskSeqId, memId, task._id, notification_title, notify_type);
         responseData = {
             meta: {
                 code: 200,
@@ -206,14 +247,14 @@ async function editTaskDetails(req, res) {
 
         // Use the task_sequence_id from the DB
         let seq_id = sequenceId ? sequenceId.task_sequence_id : null;
-        const memberName = req.member.full_name;
+       
         const notify_type = 'edit-task';
 
         // Set notification title based on task changes
         const notification_title = `Task "${task_title}" has been edited`;
 
         // Create notification after editing the task
-        createNotification(seq_id, task_title, mem_id, task_id, notification_title, memberName, notify_type);
+        createNotification(seq_id, mem_id, task_id, notification_title, notify_type);
 
         // Success response
         responseData = {
@@ -241,7 +282,7 @@ async function editTaskDetails(req, res) {
 async function deleteTask(req, res){
     let responseData;
     try {
-        const { task_id } = req.body;
+        const { task_id } = req.query;
         const delTask = await taskManagementModel.findByIdAndDelete({
             _id: task_id
         });
@@ -269,6 +310,7 @@ async function deleteTask(req, res){
 
 
 module.exports = {
+    getTaskPopUpFields,
     createTask,
     getTaskList,
     getTaskDetails,

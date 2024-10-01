@@ -23,18 +23,15 @@ const generateSeqId = async (taskTile, memberId) => {
     }
 };
 
-const createNotification = async(seq_id, task_title, mem_id, task_id, notification_title, memberName, notify_type) => {
+const createNotification = async(seq_id, mem_id, task_id, notification_title, notify_type) => {
+
     try {
         const notifications = await notificationModel.create({
-                    ticket_sequence_id: sequence_id,
-                    ticket_id,
+                    task_seq_id: seq_id,
+                    task_id,
                     notification_title,
-                    ticket_title : ticketTitle,
-                    member_id : mem_id,
-                    organization_id: orgId,
                     notify_type,
-                    member_photo: memberPhoto,
-                    member_name: memberName,
+                    member_id : mem_id,
                     is_read: 0,
                 });
     } catch (error) {

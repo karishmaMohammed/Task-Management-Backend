@@ -4,10 +4,10 @@ const notificationSchema = new mongoose.Schema({
    
     member_id: {type: mongoose.Types.ObjectId, ref: 'member_details'}, 
     task_id : {type : mongoose.Types.ObjectId, ref :'task_managements'},
+    task_seq_id: { type: String},
     notification_title: {type : String},
     is_read: {type : Boolean},
-    notification_message: { type: String},
-    
+    notify_type: { type: String}
 }, {
     timestamps: true,
 });

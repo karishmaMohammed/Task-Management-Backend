@@ -85,7 +85,7 @@ async function getComment(req, res){
 async function deleteComment(req, res){
     let responseData;
     try {
-        const { comment_id } = req.body;
+        const { comment_id } = req.query;
         const delComment = await commentsModel.findByIdAndDelete({
             _id: comment_id
         });
