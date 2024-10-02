@@ -7,6 +7,7 @@ const taskTemplateSchema = new mongoose.Schema(
         order: { type: Number },
         placeholder: { type: String },
         is_default: { type: Boolean },
+        display_name:{type: String},
         value: {type: mongoose.Schema.Types.Mixed},
         field_name: { type: String },
         description: { type: String },
@@ -19,8 +20,8 @@ const taskTemplateSchema = new mongoose.Schema(
 
 taskTemplateSchema.index({ member_id: 1 });
 
-const taskTemplateFieldModel = mongoose.model(
+const taskTemplateCustomFieldsModel = mongoose.model(
     'task_templates',
     taskTemplateSchema
 );
-module.exports = { taskTemplateFieldModel };
+module.exports = { taskTemplateCustomFieldsModel };

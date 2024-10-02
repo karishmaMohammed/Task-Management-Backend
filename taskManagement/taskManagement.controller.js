@@ -1,7 +1,7 @@
 const { taskManagementModel } = require('../models/taskManagement');
 const { generateSeqId, createNotification } = require('../middlewares/helper');
 const { taskActivityLogModel } = require('../models/taskActivityLog');
-const { taskTemplateFieldModel } = require('../models/taskTemplate');
+const { taskTemplateCustomFieldsModel } = require('../models/taskTemplateCustom');
 const {taskTemplateDefaultFieldsModel } = require('../models/taskTemplateDefault');
 
 // popup details 
@@ -9,7 +9,7 @@ async function getTaskPopUpFields(req, res){
     let responseData;
     try {
         const [customFields, defaultFields] = await Promise.all([
-            taskTemplateFieldModel.find({
+            taskTemplateCustomFieldsModel.find({
             member_id: req.member._id}), 
             taskTemplateDefaultFieldsModel.find()
         ]);
