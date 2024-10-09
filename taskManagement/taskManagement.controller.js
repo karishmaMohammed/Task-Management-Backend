@@ -1,32 +1,29 @@
 const { taskManagementModel } = require('../models/taskManagement');
 const { generateSeqId, createNotification } = require('../middlewares/helper');
 const { taskActivityLogModel } = require('../models/taskActivityLog');
-const { taskTemplateCustomFieldsModel } = require('../models/taskTemplateCustom');
-const {taskTemplateDefaultFieldsModel } = require('../models/taskTemplateDefault');
+const { formFieldsModel } = require('../models/formFields');
 
-// popup details 
-async function getTaskPopUpFields(req, res){
+
+
+async function createFormFields(req, res){
     let responseData;
     try {
-        const [customFields, defaultFields] = await Promise.all([
-            taskTemplateCustomFieldsModel.find({
-            member_id: req.member._id}), 
-            taskTemplateDefaultFieldsModel.find()
-        ]);
-        const fields = [...(customFields || []), ...(defaultFields || [])];
-        responseData = {
-            meta: {
-                code: 200,
-                success: true,
-                message: "Task fields shown successfully!",
-            },
-            data:{
-                task_fields : fields
-            }
-        };
+        const { input_type, icon, display_type,placeholder} = req.body;
+        const customFields = await formFieldsModel.create({
+            input_type,icon,display_type,placeholder});
+        if (customFields._id) {
+            responseData = {
+                meta: {
+                    code: 200,
+                    success: true,
+                    message: 'SUCCESS',
+                },
+                data: customFields._id,
+            };
 
-        return res.status(responseData.meta.code).json(responseData);
-
+            return res.status(responseData.meta.code).json(responseData);
+        }
+        
     } catch (error) {
         responseData = {
             meta: {
@@ -39,11 +36,41 @@ async function getTaskPopUpFields(req, res){
         return res.status(responseData.meta.code).json(responseData); 
     }
 }
+
+async function getFormFields(req, res){
+    let responseData;
+    try {
+        const formFields = await formFieldsModel.find({}, {
+            _id: 1, input_type: 1, display_type: 1, icon: 1, placeholder: 1});
+        responseData = {
+            meta: {
+                code: 200,
+                success: true,
+                message: 'SUCCESS',
+            },
+            form_fields: formFields,
+        };
+
+        return res.status(responseData.meta.code).json(responseData);
+    } catch (error) {
+        responseData = {
+            meta: {
+                code: 200,
+                success: false,
+                message: "Something went wrong",
+            },
+        };
+
+        return res.status(responseData.meta.code).json(responseData);
+    }
+}
+
 // create task
 async function createTask(req, res){
     let responseData;
     try {
-        const { task_title,description,due_date } = req.body;
+        const { task_title,description,due_date, custom_data, priority, main_task_seq_id} = req.body;
+        customData =  JSON.parse(custom_data);
         const memId = req.member._id;
         const taskSeqId = await generateSeqId(task_title,memId);
         // validation => member can't add same task title
@@ -62,8 +89,8 @@ async function createTask(req, res){
         }
         const task = await taskManagementModel.create({
             created_by : memId,task_title,description, 
-            task_sequence_id:taskSeqId,
-            due_date,task_status : 'draft', priority:false
+            task_sequence_id:taskSeqId, main_task_seq_id,
+            due_date,task_status : 'draft', priority, custom_data:customData
         });
         const notification_title = `Task "${task_title}" has been created`;
         const notify_type = 'task_created'
@@ -310,10 +337,12 @@ async function deleteTask(req, res){
 
 
 module.exports = {
-    getTaskPopUpFields,
+    createFormFields,
+    getFormFields,
     createTask,
     getTaskList,
     getTaskDetails,
     editTaskDetails,
-    deleteTask
+    deleteTask,
+
 }
