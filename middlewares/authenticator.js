@@ -3,7 +3,7 @@ const { memberDetailsModel } = require('../models/member');
 
 
 async function authenticateToken(req, res, next) {
-    const tokenAuth = req.headers['x-auth-token'];
+    const tokenAuth = req.headers['task-auth-token'];
     const config = req.app.get('config');
 
     try {

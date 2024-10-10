@@ -66,35 +66,63 @@ async function getFormFields(req, res){
 }
 
 // create task
-async function createTask(req, res){
+async function createTask(req, res) {
     let responseData;
     try {
-        const { task_title,description,due_date, custom_data, priority, main_task_seq_id} = req.body;
-        customData =  JSON.parse(custom_data);
+        const { task_title, description, due_date, custom_data, priority, main_task_seq_id } = req.body;
+      
+        // Try parsing custom_data safely
+        let customData;
+        try {
+            customData = JSON.parse(custom_data);
+        } catch (err) {
+            return res.status(400).json({
+                meta: {
+                    code: 400,
+                    success: false,
+                    message: "Invalid custom_data format",
+                },
+            });
+        }
+
         const memId = req.member._id;
-        const taskSeqId = await generateSeqId(task_title,memId);
+        const taskSeqId = await generateSeqId(task_title, memId);
+        console.log(taskSeqId, "taskSeqId");
+
         // validation => member can't add same task title
-        const existTaskTile = await taskManagementModel.findOne({created_by:memId },
-             {task_title:1});
-        if(existTaskTile.task_title){
+        const existTaskTile = await taskManagementModel.findOne({
+            created_by: memId,
+            task_title: task_title
+        }, { task_title: 1 });
+
+        if (existTaskTile) {
             responseData = {
                 meta: {
-                    code: 200,
+                    code: 409,
                     success: false,
-                    message: "Member can't add same task title",
+                    message: "Member can't add the same task title",
                 },
             };
-    
             return res.status(responseData.meta.code).json(responseData);
         }
+
         const task = await taskManagementModel.create({
-            created_by : memId,task_title,description, 
-            task_sequence_id:taskSeqId, main_task_seq_id,
-            due_date,task_status : 'draft', priority, custom_data:customData
+            created_by: memId,
+            task_title,
+            description,
+            task_sequence_id: taskSeqId,
+            main_task_seq_id,
+            due_date,
+            task_status: 'draft',
+            priority,
+            custom_data: customData
         });
+        console.log(task, "task task task");
+
         const notification_title = `Task "${task_title}" has been created`;
-        const notify_type = 'task_created'
+        const notify_type = 'task_created';
         createNotification(taskSeqId, memId, task._id, notification_title, notify_type);
+
         responseData = {
             meta: {
                 code: 200,
@@ -102,20 +130,20 @@ async function createTask(req, res){
                 message: "Task created successfully!",
             },
         };
-
         return res.status(responseData.meta.code).json(responseData);
     } catch (error) {
+        console.error("Error creating task:", error);
         responseData = {
             meta: {
-                code: 200,
+                code: 500,
                 success: false,
-                message: "Something went wrong",
+                message: "Something went wrong in creating task",
             },
         };
-
         return res.status(responseData.meta.code).json(responseData);
     }
 }
+
 // list of task need to add pagination
 async function getTaskList(req, res){
     let responseData;
@@ -154,7 +182,7 @@ async function getTaskList(req, res){
                 message: "Task list shown successfully!",
             },
             data:{
-                task_list : taskList ? taskList[0] : []
+                task_list : taskList.length ? taskList : []
             }
         };
 
@@ -178,6 +206,7 @@ async function getTaskDetails(req, res){
     let responseData;
     try {
         const { task_sequence_id } = req.params;
+        console.log(task_sequence_id, "task_sequence_id")
         const taskDetails = await taskManagementModel.aggregate([
             {
                 $match:{
