@@ -117,7 +117,7 @@ async function createTask(req, res) {
             priority,
             custom_data: customData
         });
-        console.log(task, "task task task");
+      
 
         const notification_title = `Task "${task_title}" has been created`;
         const notify_type = 'task_created';
@@ -206,7 +206,7 @@ async function getTaskDetails(req, res){
     let responseData;
     try {
         const { task_sequence_id } = req.params;
-        console.log(task_sequence_id, "task_sequence_id")
+       
         const taskDetails = await taskManagementModel.aggregate([
             {
                 $match:{

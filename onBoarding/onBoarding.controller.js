@@ -187,6 +187,7 @@ async function editProfileDetails(req, res) {
         },
         { new: true }
       );
+      console.log(updatedDetails, "updatedDetails")
     } else if (action === "get_info") {
       getDetails = await memberDetailsModel.findOne(
         { _id: req.member._id },
