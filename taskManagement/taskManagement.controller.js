@@ -119,7 +119,7 @@ async function createTask(req, res) {
         });
       
 
-        const notification_title = `Task "${task_title}" has been created`;
+        const notification_title = `Task "${task.task_title}" has been created`;
         const notify_type = 'task_created';
         createNotification(taskSeqId, memId, task._id, notification_title, notify_type);
 

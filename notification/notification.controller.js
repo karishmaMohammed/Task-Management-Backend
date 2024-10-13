@@ -34,10 +34,10 @@ async function getNotifications(req, res) {
         message: "SUCCESS",
       },
       data: {
-        all_notification: allNotification,
-        all_count: allCount,
-        un_read_notification: unRead,
-        un_read_count: countOfUnread,
+        all_notification: allNotification || [], // Ensure it's an array
+        all_count: allCount || 0,                // Ensure count is a number
+        un_read_notification: unRead || [],      // Ensure it's an array
+        un_read_count: countOfUnread || 0,       // Ensure count is a number
       },
     };
 
