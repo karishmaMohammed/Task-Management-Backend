@@ -45,7 +45,7 @@ async function register(req, res) {
       meta: {
         code: 200,
         success: true,
-        message: "SUCCESS!",
+        message: "Your registered now login!",
       },
       data: {
         user_details: userDetails._id,

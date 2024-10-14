@@ -6,7 +6,7 @@ const memberDetailsSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String},
     gender:{ type: String},
-    phone_number:{ type: String},
+    phone_number:{ type: Number},
     id_token: { type: String},
     is_verified: { type: Boolean },
     mode: { type: Boolean} //dark mode lite mode
