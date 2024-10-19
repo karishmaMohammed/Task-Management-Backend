@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.route('/create-comment').post(authenticateToken, commentCtrl.createComment);
 router.route('/get-comment').get(authenticateToken, commentCtrl.getComment);
-router.route('/del-comment').get(authenticateToken, commentCtrl.deleteComment);
+router.route('/del-comment').post(authenticateToken, commentCtrl.deleteComment);
 
 module.exports = router;

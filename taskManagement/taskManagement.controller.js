@@ -230,6 +230,7 @@ async function getTaskDetails(req, res){
                     description:1,
                     task_title: 1,
                     task_status:1,
+                    custom_data:1,
                     priority:1,
                     due_date:1,
                     member_name: '$member_name.full_name',
@@ -338,7 +339,7 @@ async function editTaskDetails(req, res) {
 async function deleteTask(req, res){
     let responseData;
     try {
-        const { task_id } = req.query;
+        const { task_id } = req.body;
         const delTask = await taskManagementModel.findByIdAndDelete({
             _id: task_id
         });

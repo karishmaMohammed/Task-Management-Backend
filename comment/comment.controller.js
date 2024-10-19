@@ -1,4 +1,5 @@
 const { commentsModel } = require('../models/comment');
+const mongoose = require('mongoose');
 
 async function createComment(req, res){
     let responseData;
@@ -33,11 +34,12 @@ async function getComment(req, res){
     let responseData;
     try {
         const { task_id } = req.query;
+       
         const commentList = await commentsModel.aggregate([
             {
                 $match:{
-                    member_id: req.member._id,
-                    task_id
+                    task_id : new mongoose.Types.ObjectId(task_id),
+                    member_id: req.member._id
                 }
             },
             {
@@ -64,7 +66,8 @@ async function getComment(req, res){
                 message: 'Comment list successfully',
             },
             data:{
-                comment_list: commentList ? commentList[0] : []
+                
+                comment_list: commentList.length ? commentList : []
             }
         };
         return res.status(responseData.meta.code).json(responseData);
@@ -85,7 +88,7 @@ async function getComment(req, res){
 async function deleteComment(req, res){
     let responseData;
     try {
-        const { comment_id } = req.query;
+        const { comment_id } = req.body;
         const delComment = await commentsModel.findByIdAndDelete({
             _id: comment_id
         });

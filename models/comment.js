@@ -8,7 +8,7 @@ comment_message : { type: String},
     timestamps: true
 });
 
-commentSchema.index({ member_id :1});
+commentSchema.index({task_id:1, member_id :1});
 
 const commentsModel = mongoose.model('comments', commentSchema);
 
