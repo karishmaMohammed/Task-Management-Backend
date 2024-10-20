@@ -59,7 +59,7 @@ async function getNotifications(req, res) {
 async function markNotificationsRead(req, res) {
   let responseData;
   try {
-    const { id } = req.query;
+    const { id } = req.body;
     let readNotify;
     if (id) {
       readNotify = await notificationModel.findByIdAndUpdate(
