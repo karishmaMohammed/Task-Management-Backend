@@ -301,30 +301,17 @@ async function getTaskDetails(req, res) {
 async function editTaskDetails(req, res) {
   let responseData;
   try {
-    const { task_id, prev_obj, new_obj, task_title } = req.body;
+    const { task_id, prev_obj, new_obj } = req.body;
     const mem_id = req.member._id;
     const parsedPrevObj = JSON.parse(prev_obj);
     const parsedNewObj = JSON.parse(new_obj);
 
-    // Fetch the task details first
-    const taskDetails = await taskManagementModel.findById({ _id: task_id });
-    if (!taskDetails) {
-      responseData = {
-        meta: {
-          code: 500, // Set correct error code
-          success: false,
-          message: "Task not found",
-        },
-      };
-      return res.status(responseData.meta.code).json(responseData);
-    }
-
-    // Perform multiple actions concurrently using Promise.all
-    const [updateTicket, creating, sequenceId] = await Promise.all([
+    // Step 1: Update the task and retrieve the new task document with `task_sequence_id`
+    const [updatedTask, activityLog] = await Promise.all([
       taskManagementModel.findByIdAndUpdate(
-        { _id: task_id },
-        { ...taskDetails, ...parsedNewObj }, // Update only the new fields
-        { new: true } // Return updated document
+        task_id,
+        { $set: parsedNewObj },
+        { new: true, fields: { task_sequence_id: 1 } }
       ),
       taskActivityLogModel.create({
         task_id,
@@ -334,29 +321,16 @@ async function editTaskDetails(req, res) {
         },
         prevObj: parsedPrevObj,
         newObj: parsedNewObj,
-      }),
-      taskManagementModel.findOne(
-        { _id: task_id },
-        { task_sequence_id: 1, _id: 0 }
-      ),
+      })
     ]);
 
-    // Use the task_sequence_id from the DB
-    let seq_id = sequenceId ? sequenceId.task_sequence_id : null;
+    const seq_id = updatedTask?.task_sequence_id || null;
 
-    const notify_type = "edit-task";
+    // Step 2: Create notification asynchronously
+    const notificationTitle = `${seq_id} Task has been edited`;
+    const notifyType = "edit-task";
 
-    // Set notification title based on task changes
-    const notification_title = `Task "${task_title}" has been edited`;
-
-    // Create notification after editing the task
-    createNotification(
-      seq_id,
-      mem_id,
-      task_id,
-      notification_title,
-      notify_type
-    );
+    createNotification(seq_id, mem_id, task_id, notificationTitle, notifyType);
 
     // Success response
     responseData = {
@@ -372,11 +346,59 @@ async function editTaskDetails(req, res) {
 
     responseData = {
       meta: {
-        code: 500, // Set correct error code
+        code: 500,
         success: false,
         message: "Something went wrong",
       },
     };
+    return res.status(responseData.meta.code).json(responseData);
+  }
+}
+
+
+async function editDefaultTaskDetails(req, res){
+  let responseData;
+  try {
+    const { task_id, new_obj, prev_obj,updateData } = req.body;
+
+        const updateObj = {};
+        for (const key in updateData) {
+            updateObj[key] = updateData[key];
+        }
+        console.log(updateObj)
+        const [editedDetails, activityLogs] = await Promise.all([
+          taskManagementModel.findOneAndUpdate(
+            { _id: task_id },
+            updateObj,{ new: true }), 
+            taskActivityLogModel.create({
+              task_id,
+              updatedBy: {
+                member_id: req.member._id,
+                name: req.member.full_name,
+              },
+              prevObj: prev_obj,
+              newObj: new_obj,
+            })]);
+
+            responseData = {
+              meta: {
+                code: 200,
+                success: true,
+                message: "Task details updated successfully!",
+              },
+             
+            };
+        
+       return res.status(responseData.meta.code).json(responseData);
+  } catch (error) {
+    responseData = {
+      meta: {
+        code: 200,
+        success: false,
+        message: "Something went wrong",
+      },
+    };
+
     return res.status(responseData.meta.code).json(responseData);
   }
 }
@@ -417,5 +439,6 @@ module.exports = {
   getTaskList,
   getTaskDetails,
   editTaskDetails,
+  editDefaultTaskDetails,
   deleteTask,
 };

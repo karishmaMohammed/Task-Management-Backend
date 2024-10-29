@@ -10,6 +10,7 @@ router.route('/create-task').post(authenticateToken, taskCtrl.createTask);
 router.route('/get-task-list').get(authenticateToken, taskCtrl.getTaskList);
 router.route('/get-task-details/:task_sequence_id').get(authenticateToken, taskCtrl.getTaskDetails);
 router.route('/edit-task-details').post(authenticateToken, taskCtrl.editTaskDetails);
+router.route('/edit-def-task-details').post(authenticateToken, taskCtrl.editDefaultTaskDetails);
 router.route('/del-task').post(authenticateToken, taskCtrl.deleteTask);
 
 module.exports = router;
