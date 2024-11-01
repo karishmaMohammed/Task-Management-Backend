@@ -172,10 +172,17 @@ async function createTask(req, res) {
 async function getTaskList(req, res) {
   let responseData;
   try {
-    const taskList = await taskManagementModel.aggregate([
+    const page = parseInt(req.query.page) || 1;  
+    const limit = parseInt(req.query.limit) || 10; 
+    const skip = (page - 1) * limit;
+    const search = req.query.search || ""; 
+    const result = await taskManagementModel.aggregate([
       {
         $match: {
           created_by: req.member._id,
+          ...(search && {
+            task_title: { $regex: search, $options: "i" },
+          }),
         },
       },
       {
@@ -188,17 +195,33 @@ async function getTaskList(req, res) {
       },
       { $unwind: { path: "$member_name", preserveNullAndEmptyArrays: true } },
       {
-        $project: {
-          _id: 1,
-          task_sequence_id: 1,
-          task_title: 1,
-          task_status: 1,
-          priority: 1,
-          due_date: 1,
-          member_name: "$member_name.full_name",
+        $facet: {
+          task_list: [
+            {
+              $project: {
+                _id: 1,
+                task_sequence_id: 1,
+                task_title: 1,
+                task_status: 1,
+                priority: 1,
+                due_date: 1,
+                member_name: "$member_name.full_name",
+              },
+            },
+            { $skip: skip },
+            { $limit: limit },
+          ],
+          total_count: [
+            { $count: "count" },
+          ],
         },
       },
     ]);
+
+    const taskList = result[0].task_list;
+    const totalTasks = result[0].total_count[0]?.count || 0;
+    const totalPages = Math.ceil(totalTasks / limit);
+
     responseData = {
       meta: {
         code: 200,
@@ -206,7 +229,13 @@ async function getTaskList(req, res) {
         message: "Task list shown successfully!",
       },
       data: {
-        task_list: taskList.length ? taskList : [],
+        task_list: taskList,
+        pagination: {
+          current_page: page,
+          total_pages: totalPages,
+          total_tasks: totalTasks,
+         
+        },
       },
     };
 
@@ -214,7 +243,7 @@ async function getTaskList(req, res) {
   } catch (error) {
     responseData = {
       meta: {
-        code: 200,
+        code: 500,
         success: false,
         message: "Something went wrong",
       },
@@ -223,6 +252,8 @@ async function getTaskList(req, res) {
     return res.status(responseData.meta.code).json(responseData);
   }
 }
+
+
 
 //task details page
 async function getTaskDetails(req, res) {
@@ -321,6 +352,7 @@ async function editTaskDetails(req, res) {
         },
         prevObj: parsedPrevObj,
         newObj: parsedNewObj,
+        member_id: req.member._id
       })
     ]);
 
@@ -378,13 +410,14 @@ async function editDefaultTaskDetails(req, res){
               },
               prevObj: prev_obj,
               newObj: new_obj,
+              member_id: req.member._id
             })]);
 
             responseData = {
               meta: {
                 code: 200,
                 success: true,
-                message: "Task details updated successfully!",
+                message: "SUCCESS",
               },
              
             };

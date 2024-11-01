@@ -14,7 +14,7 @@ const taskActivityLogSchema = new mongoose.Schema({
 });
 
 
-taskActivityLogSchema.index([{ task_id: 1 }]);
+taskActivityLogSchema.index({ task_id: 1 });
 
 const taskActivityLogModel = mongoose.model('task_activity_logs', taskActivityLogSchema);
 

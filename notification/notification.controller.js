@@ -107,8 +107,9 @@ async function getTaskActivityLogs(req, res){
     let responseData;
     try {
         const { task_id } = req.query;
-        const changeLogs = await taskActivityLogModel.find({ _id:task_id,
-            member_id: req.member._id }, {
+    
+        const changeLogs = await taskActivityLogModel.find({task_id,
+          member_id: req.member._id }, {
             updatedBy: 1, prevObj: 1,
             newObj: 1, createdAt: 1, updatedAt: 1
         });
