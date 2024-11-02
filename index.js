@@ -11,7 +11,12 @@ const port = process.env.PORT
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+// app.use(cors())
+app.use(cors({
+    origin: "https://task-management-frontend-iota.vercel.app", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if using cookies
+  }));
 app.use('/member', memberRouters);
 app.use('/task', taskRouters);
 app.use('/comment', commentRoutes);
