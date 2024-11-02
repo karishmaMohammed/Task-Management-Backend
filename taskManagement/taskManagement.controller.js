@@ -230,12 +230,7 @@ async function getTaskList(req, res) {
       },
       data: {
         task_list: taskList,
-        pagination: {
-          current_page: page,
-          total_pages: totalPages,
-          total_tasks: totalTasks,
-         
-        },
+        total_pages: totalPages,
       },
     };
 
