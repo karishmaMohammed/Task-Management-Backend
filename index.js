@@ -13,10 +13,10 @@ const app = express()
 app.use(express.json())
 // app.use(cors())
 app.use(cors({
-    origin: "https://task-management-frontend-iota.vercel.app", 
+    origin: true, 
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // if using cookies
-  }));
+    credentials: true,
+  }));  
 app.use('/member', memberRouters);
 app.use('/task', taskRouters);
 app.use('/comment', commentRoutes);
