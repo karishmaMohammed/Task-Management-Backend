@@ -173,9 +173,11 @@ async function verifyMember(req, res) {
 }
 
 async function editProfileDetails(req, res) {
+  
   let responseData;
   try {
-    const { name, phone, gender, action } = req.body;
+    const { name, phone, gender, action, mode } = req.body;
+    console.log("Action:", action, "Mode:", mode);
     let getDetails;
     if (action === "update") {
       const updatedDetails = await memberDetailsModel.findByIdAndUpdate(
@@ -187,13 +189,19 @@ async function editProfileDetails(req, res) {
         },
         { new: true }
       );
-      console.log(updatedDetails, "updatedDetails")
+     
     } else if (action === "get_info") {
       getDetails = await memberDetailsModel.findOne(
         { _id: req.member._id },
         { full_name: 1, phone_number: 1, email: 1, gender: 1 }
       );
-      // console.log(getDetails, "getDetails")
+    }else if(action === 'update_mode'){
+      console.log(mode)
+      await memberDetailsModel.findByIdAndUpdate(
+        req.member._id,
+        {mode},
+        { new: true }
+      );
     }
 
     responseData = {
