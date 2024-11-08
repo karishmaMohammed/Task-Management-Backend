@@ -109,7 +109,7 @@ async function login(req, res) {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "7d" }
     );
 
     responseData = {
@@ -119,7 +119,7 @@ async function login(req, res) {
         message: "Login successfull!",
       },
       data: {
-        user_token: token,
+        user_token: token ? token : 'token expired please login',
       },
     };
 
@@ -177,7 +177,7 @@ async function editProfileDetails(req, res) {
   let responseData;
   try {
     const { name, phone, gender, action, mode } = req.body;
-    console.log("Action:", action, "Mode:", mode);
+   
     let getDetails;
     if (action === "update") {
       const updatedDetails = await memberDetailsModel.findByIdAndUpdate(
