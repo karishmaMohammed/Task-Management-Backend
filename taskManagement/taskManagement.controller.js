@@ -103,7 +103,7 @@ async function createTask(req, res) {
 
     const memId = req.member._id;
     const taskSeqId = await generateSeqId(task_title, memId);
-    console.log(taskSeqId, "taskSeqId");
+   
 
     // validation => member can't add same task title
     const existTaskTile = await taskManagementModel.findOne(
@@ -231,6 +231,7 @@ async function getTaskList(req, res) {
       data: {
         task_list: taskList,
         total_pages: totalPages,
+        length: taskList.length
       },
     };
 
@@ -392,7 +393,7 @@ async function editDefaultTaskDetails(req, res){
         for (const key in updateData) {
             updateObj[key] = updateData[key];
         }
-        console.log(updateObj)
+        
         const [editedDetails, activityLogs] = await Promise.all([
           taskManagementModel.findOneAndUpdate(
             { _id: task_id },
